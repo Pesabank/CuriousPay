@@ -1,10 +1,8 @@
 {
-  "/auth/sign-in/page": "app/auth/sign-in/page.js",
+  "/not-found": "app/not-found.js",
   "/page": "app/page.js",
-  "/api/auth/sign-in/route": "app/api/auth/sign-in/route.js",
-  "/business/page": "app/business/page.js",
-  "/business/wallets/page": "app/business/wallets/page.js",
-  "/business/settings/page": "app/business/settings/page.js",
-  "/business/analytics/page": "app/business/analytics/page.js",
-  "/business/virtual-cards/page": "app/business/virtual-cards/page.js"
+  "/how-it-works/page": "app/how-it-works/page.js",
+  "/about/page": "app/about/page.js",
+  "/contact/page": "app/contact/page.js",
+  "/business/page": "app/business/page.js"
 }

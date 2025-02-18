@@ -11,19 +11,27 @@ export default function HowItWorksPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32">
           <h1 className="text-6xl font-bold mb-16 gradient-text">How LipaPay Works</h1>
           
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {steps.map((step, index) => (
-              <div 
+              <div
                 key={step.title}
-                className="relative bg-white/5 backdrop-blur-sm rounded-lg p-8 border border-white/10"
+                className="group relative bg-white/5 rounded-lg border border-white/10 p-8 transition-all hover:bg-white/10"
               >
-                <div className="absolute -top-6 -left-6 w-12 h-12 bg-[#00FF84] rounded-full flex items-center justify-center text-black font-bold">
+                <div className="absolute -top-4 -left-4 w-8 h-8 bg-[#00FF84] rounded-full flex items-center justify-center text-black font-bold text-sm">
                   {index + 1}
                 </div>
-                <div className="ml-8">
-                  <step.icon className="w-12 h-12 text-[#00FF84] mb-4" />
-                  <h3 className="text-2xl font-bold mb-4">{step.title}</h3>
-                  <p className="text-gray-400 text-lg">{step.description}</p>
+                <div className="flex items-start space-x-6">
+                  <div className="w-12 h-12 flex-shrink-0 text-[#00FF84]">
+                    <step.icon />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-semibold mb-3 text-white group-hover:text-[#00FF84] transition-colors">
+                      {step.title}
+                    </h3>
+                    <p className="text-gray-400 leading-relaxed">
+                      {step.description}
+                    </p>
+                  </div>
                 </div>
               </div>
             ))}

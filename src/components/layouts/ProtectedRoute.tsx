@@ -36,6 +36,7 @@ const publicRoutes = [
   '/contact',
   '/terms',
   '/privacy',
+  '/how-it-works',
 ]
 
 export function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -45,8 +46,9 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { connected, connecting: walletLoading } = useWallet()
 
   useEffect(() => {
+    // Don't redirect while loading
     if (authLoading) {
-      return // Don't redirect while auth is loading
+      return
     }
 
     // Skip for API routes
@@ -59,15 +61,20 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
     const isProtectedWalletRoute = protectedWalletRoutes.some(route => pathname?.startsWith(route))
     const isProtectedAuthRoute = protectedAuthRoutes.some(route => pathname?.startsWith(route))
 
-    // If user is authenticated and tries to access auth routes, redirect to business
-    if (user && isAuthRoute) {
-      router.push('/business')
+    // Don't redirect if on public routes
+    if (isPublicRoute) {
       return
     }
 
     // If user is not authenticated and tries to access protected routes, redirect to sign in
     if (!user && (isProtectedWalletRoute || isProtectedAuthRoute)) {
-      router.push('/auth/sign-in')
+      router.replace('/auth/sign-in')
+      return
+    }
+
+    // If user is authenticated and tries to access auth routes, redirect to business
+    if (user && isAuthRoute) {
+      router.replace('/business')
       return
     }
 
@@ -78,7 +85,7 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
       }
 
       if (!connected) {
-        router.push('/wallet/connect')
+        router.replace('/wallet/connect')
         return
       }
     }
@@ -88,7 +95,7 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
   if (authLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#00FF84]"></div>
       </div>
     )
   }

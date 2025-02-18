@@ -1,6 +1,7 @@
 'use client'
 
 import React, { createContext, useContext, useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 
 interface User {
   id: string
@@ -21,6 +22,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined)
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
+  const router = useRouter()
 
   useEffect(() => {
     // Check for stored auth token
@@ -64,6 +66,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       localStorage.setItem('authToken', data.token)
       setUser(data.user)
+      
+      // Use setTimeout to ensure state updates are processed
+      setTimeout(() => {
+        router.replace('/business')
+      }, 0)
+    } catch (error) {
+      throw error
     } finally {
       setLoading(false)
     }
@@ -74,6 +83,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setLoading(true)
       localStorage.removeItem('authToken')
       setUser(null)
+      router.replace('/auth/sign-in')
     } finally {
       setLoading(false)
     }
@@ -98,13 +108,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       localStorage.setItem('authToken', data.token)
       setUser(data.user)
+      
+      // Use setTimeout to ensure state updates are processed
+      setTimeout(() => {
+        router.replace('/business')
+      }, 0)
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <AuthContext.Provider value={{ user, loading, signIn, signOut, signUp }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        loading,
+        signIn,
+        signOut,
+        signUp,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   )

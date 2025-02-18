@@ -1,0 +1,37 @@
+Options for Implementing a 1% Fee
+While Solana Pay itself doesn't directly support custom fees, you can achieve this by implementing additional logic outside the standard Solana Pay flow. Here are two possible approaches:
+
+1. Adjust Payment Amount on the Frontend
+Modify the amount requested from the customer to include the 1% fee before generating the Solana Pay payment request.
+Example:
+If the customer needs to pay $100, your system calculates the total as:
+Total
+=
+Payment Amount
++
+(
+Payment Amount
+×
+1
+%
+)
+Total=Payment Amount+(Payment Amount×1%)
+Total = $100 + ($100 × 0.01) = $101.
+Display this adjusted amount in the payment request.
+Pros:
+Simple to implement without additional smart contract logic.
+Works seamlessly with the Solana Pay API.
+Cons:
+Customers must approve the adjusted amount, which might confuse users if not clearly communicated.
+2. Use a Smart Contract for Fee Deduction
+Instead of directly transferring funds to the recipient wallet, you can create a custom Solana program (smart contract) to handle the payment logic.
+Workflow:
+Customer sends the full payment to the smart contract.
+The smart contract deducts 1% and forwards 99% to the business's wallet.
+The 1% fee is sent to a fee-collection wallet.
+Pros:
+Fully automated and transparent fee handling.
+Clear separation of payment and fee logic.
+Cons:
+Requires Solana smart contract development using Rust and Anchor.
+Adds complexity and potential gas costs (still minimal on Solana).

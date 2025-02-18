@@ -1,0 +1,148 @@
+LipaPay: An open, decentralized payments protocol
+
+Overview
+LipaPay is a decentralized payment platform designed to challenge traditional mobile money solutions in Africa like M-Pesa by leveraging the power of blockchain technology. Built initially on the Solana blockchain, the platform will provide businesses and customers with a seamless, secure, and efficient way to conduct transactions using cryptocurrency, while also supporting fiat currencies. LipaPay aims to bridge the gap between traditional financial systems and blockchain technology through innovative solutions. It will be initially powered by Solana Blockchain with the capability of supporting other blockchains.
+
+Key Components
+1. Business Dashboard
+The business dashboard will be the central hub for businesses to manage their transactions and customer interactions.
+
+Website:
+Features a top navigation bar, main body, and footer.
+Top navigation bar will have Home, About, Products, Contact Us, and How it works buttons
+A prominent "For Business" button on top bar navigation, far right redirects users to the onboarding portal.
+Business Onboarding
+Businesses can sign up by providing details such as:
+Business name
+Registration information
+Tax Identification Number (TIN) - optional
+Upon successful registration, each business receives a unique identifier (UID), akin to an M-Pesa PayBill number. UUID will ave 6 digits such as 332288.
+Dashboard Features
+Side Navigation Bar with relevant icons or emoji:
+Options for wallet connections (e.g., Phantom, MetaMask or any other).
+Transaction Management:
+Generate QR codes and payment links for customer transactions.
+View inbound and outbound transactions with clear indicators (e.g., green arrows for inbound, red arrows for outbound).
+Virtual Accounts:
+Infrastructure for virtual fiat accounts linked to crypto wallets.
+Features for viewing wallet addresses, backing up assets, sending funds, swapping currencies, and making payments.
+Reports & Analytics:
+Transaction summaries presented graphically.
+Exportable insights (e.g., PDF reports) on customer behavior and transaction trends.
+Profile Section:
+Stores business details, including tax information and preferences.
+2. Customer Mobile App -  to be designed later
+The mobile app will offer a user-friendly interface for customers to interact with the platform.
+
+Basic User Interface
+"Pay" and "Scan" Options:
+Scanning QR codes opens the device camera and allows customers to select their preferred connected wallet.
+UID Payments:
+Enables payments by directly inputting the business UID without scanning a QR code.
+Wallet Connect
+Secure integration for popular crypto wallets like Phantom and MetaMask.
+Basic wallet functions such as making payments and viewing transaction history.
+Observability Integration
+Collect anonymized user interaction data to optimize user experience and improve feature functionality.
+3. Additional Platform Features
+To enhance functionality and engagement, the platform will incorporate:
+
+Virtual Card Design
+Generate virtual cards for both fiat and crypto transactions.
+Unique card addresses created based on the chosen blockchain.
+Multi-Blockchain Support
+Users can select their preferred blockchain (e.g., Solana, Ethereum) for crypto addresses and QR codes.
+Enhanced Analytics for Businesses
+Advanced insights into customer behavior, such as:
+Average transaction value.
+Most popular payment methods.
+Loyalty and Rewards System
+Customers earn points for frequent transactions or specific platform features.
+Points can be redeemed for discounts or rewards.
+Cross-Currency Transactions
+Customers can pay in one currency while businesses receive another (e.g., paying in Solana and receiving USDC).
+Notifications System
+Push notifications for:
+Successful transactions.
+Payment requests.
+System updates.
+Security Enhancements
+Two-factor authentication (2FA) for wallet connections and transactions.
+Biometric authentication (e.g., fingerprint or Face ID) for mobile apps.
+Technical Considerations
+1. Mobile App Development
+Utilize Flutter or React Native for cross-platform deployment on iOS and Android.
+Implement QR code scanning using libraries like ZXing or ML Kit.
+2. Blockchain Integration
+Use SolanaPay SDK: https://docs.solanapay.com/
+
+ website: https://solanapay.com/ 
+
+and the SDK Docs: https://github.com/anza-xyz/solana-pay
+
+Design APIs to enable future integration with additional blockchains.
+Develop smart contracts to handle:
+UID-based payments.
+QR code transactions.
+
+3. Observability Tools
+Integrate tools like Datadog or New Relic for monitoring user interactions and gathering insights.
+5. Scalability Considerations
+Design a scalable backend to handle high transaction volumes with minimal latency and made with dynamic scaling in mind.
+
+Conclusion
+LipaPay is a decentralized payment platform that aims to revolutionize financial transactionsin Africa and beyond by providing businesses and customers with an efficient, secure, and user-friendly solution. Its focus on blockchain integration, multi-currency support, and robust security measures ensures future-proofing and scalability as the platform evolves to meet market demands.
+
+
+
+
+Implementation:
+
+
+
+# LipaPay - Decentralized Payment Platform
+
+A blockchain-based payment solution built on Solana.
+
+## Project Structure
+- `/frontend` - Next.js web application
+	- Website
+	- Business dashboard
+	- Payment integration
+- `/contracts` - Solana smart contracts (future)
+- `/docs` - Documentation
+
+## Development Roadmap
+
+### Phase 1: Website
+- [] Hero section with value proposition
+- [] Navigation bar (Home, About, Products, Contact, How it works)
+- [] Business features section
+- [] Integration showcase
+- [] Footer with links
+
+### Phase 2: Business Dashboard
+- [ ] Business registration flow
+- [ ] Dashboard UI
+- [ ] Wallet integration
+- [ ] Transaction management
+- [ ] Analytics & reporting
+
+### Phase 3: Payment Integration
+- [ ] Solana Pay integration
+- [ ] QR code generation
+- [ ] Payment processing
+- [ ] Fee implementation (1%)
+
+### Phase 4: Mobile App
+- [ ] Customer mobile interface
+- [ ] QR scanner
+- [ ] Wallet connection
+- [ ] Transaction history
+
+## Tech Stack
+- Frontend: Next.js, TailwindCSS, Framer Motion
+- Blockchain: Solana, SolanaPay SDK
+- Authentication: Web3 wallets
+- State Management: Redux Toolkit
+- UI Components: Shadcn UI

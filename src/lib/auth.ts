@@ -53,7 +53,7 @@ class AuthenticationService {
         publicKey: {
           challenge,
           rp: {
-            name: 'LipaPay',
+            name: 'CuriousPay',
             id: window.location.hostname
           },
           user: {
@@ -127,7 +127,7 @@ class AuthenticationService {
       const secret = generateOTP()
       
       // Generate QR code URL (in a real app, this would be a proper QR code)
-      const qrCode = `otpauth://totp/LipaPay:${phoneNumber}?secret=${secret}&issuer=LipaPay`
+      const qrCode = `otpauth://totp/CuriousPay:${phoneNumber}?secret=${secret}&issuer=CuriousPay`
 
       return { secret, qrCode }
     } catch (error) {

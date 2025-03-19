@@ -1,9 +1,6 @@
 {
+  "/auth/sign-up/page": "app/auth/sign-up/page.js",
   "/page": "app/page.js",
   "/contact/page": "app/contact/page.js",
-  "/auth/sign-up/page": "app/auth/sign-up/page.js",
-  "/business/page": "app/business/page.js",
-  "/business/wallets/page": "app/business/wallets/page.js",
-  "/business/analytics/page": "app/business/analytics/page.js",
-  "/business/virtual-cards/page": "app/business/virtual-cards/page.js"
+  "/how-it-works/page": "app/how-it-works/page.js"
 }

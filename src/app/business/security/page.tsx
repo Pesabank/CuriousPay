@@ -267,7 +267,7 @@ export default function SecurityPage() {
           <div className="space-y-6">
             <div className="flex flex-col items-center space-y-4 p-6 bg-white rounded-lg">
               <QRCode
-                value="otpauth://totp/LipaPay:user@example.com?secret=HXDMVJECJJWSRB3HWIZR4IFUGFTMXBOZ&issuer=LipaPay"
+                value="otpauth://totp/CuriousPay:user@example.com?secret=HXDMVJECJJWSRB3HWIZR4IFUGFTMXBOZ&issuer=CuriousPay"
                 size={200}
                 level="H"
               />

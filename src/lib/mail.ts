@@ -11,7 +11,7 @@ export const sendVerificationEmail = async (
   const confirmLink = `${domain}/auth/verify?token=${token}`
 
   await resend.emails.send({
-    from: 'LipaPay <noreply@lipapay.com>',
+    from: 'CuriousPay <noreply@Curiouspay.com>',
     to: email,
     subject: 'Verify your email',
     html: `
@@ -29,7 +29,7 @@ export const sendPasswordResetEmail = async (
   const resetLink = `${domain}/auth/reset-password?token=${token}`
 
   await resend.emails.send({
-    from: 'LipaPay <noreply@lipapay.com>',
+    from: 'CuriousPay <noreply@Curiouspay.com>',
     to: email,
     subject: 'Reset your password',
     html: `
@@ -45,7 +45,7 @@ export const sendTwoFactorTokenEmail = async (
   token: string
 ) => {
   await resend.emails.send({
-    from: 'LipaPay <noreply@lipapay.com>',
+    from: 'CuriousPay <noreply@Curiouspay.com>',
     to: email,
     subject: 'Two-factor authentication code',
     html: `

@@ -5,7 +5,7 @@ import './globals.css'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'LipaPay',
+  title: 'CuriousPay',
   description: 'Decentralized payment platform built on Solana',
 }
 

@@ -1,9 +1,9 @@
-# LipaPay - Decentralized Payment Platform
+# CuriousPay - Decentralized Payment Platform
 
 A blockchain-based payment solution built on Solana, designed to revolutionize financial transactions in Africa.
 
 ## Overview
-LipaPay is a decentralized payment platform leveraging blockchain technology to provide secure, efficient, and low-cost payment solutions. Built on Solana, it offers instant settlement with near-zero fees.
+CuriousPay is a decentralized payment platform leveraging blockchain technology to provide secure, efficient, and low-cost payment solutions. Built on Solana, it offers instant settlement with near-zero fees.
 
 ## Features
 - Business Dashboard with analytics

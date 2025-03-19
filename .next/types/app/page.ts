@@ -1,4 +1,4 @@
-// File: C:\Users\ADMIN\CascadeProjects\Complete\LipaPay\src\app\page.tsx
+// File: C:\Users\ADMIN\Videos\LipaPay\src\app\page.tsx
 import * as entry from '../../../src/app/page.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 

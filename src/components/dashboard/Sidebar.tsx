@@ -26,7 +26,7 @@ export function Sidebar() {
         <div className="flex flex-col flex-grow bg-gray-800 pt-5 pb-4 overflow-y-auto">
           <div className="flex items-center flex-shrink-0 px-4">
             <Link href="/business" className="text-2xl font-bold text-white">
-              LipaPay
+              CuriousPay
             </Link>
           </div>
           <nav className="mt-8 flex-1 px-2 space-y-1">

@@ -11,11 +11,11 @@ export function QRCodeGenerator() {
     try {
       // Replace with your actual business wallet address
       const recipient = 'YOUR_WALLET_ADDRESS'
-      const label = 'LipaPay Business'
+      const label = 'CuriousPay Business'
       const message = 'Payment for goods/services'
       
       // Create the payment request URL
-      const url = new URL('https://lipapay.app/pay')
+      const url = new URL('https://Curiouspay.app/pay')
       url.searchParams.append('recipient', recipient)
       url.searchParams.append('label', label)
       url.searchParams.append('message', message)

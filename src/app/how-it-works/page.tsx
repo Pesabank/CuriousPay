@@ -9,7 +9,7 @@ export default function HowItWorksPage() {
       <Navbar />
       <div className="min-h-screen bg-black text-white pt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32">
-          <h1 className="text-6xl font-bold mb-16 gradient-text">How LipaPay Works</h1>
+          <h1 className="text-6xl font-bold mb-16 gradient-text">How CuriousPay Works</h1>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {steps.map((step, index) => (
@@ -40,7 +40,7 @@ export default function HowItWorksPage() {
           <div className="mt-32 text-center">
             <h2 className="text-4xl font-bold mb-8">Ready to Get Started?</h2>
             <p className="text-xl text-gray-400 mb-12 max-w-2xl mx-auto">
-              Join thousands of businesses and customers already using LipaPay for their payment needs.
+              Join thousands of businesses and customers already using CuriousPay for their payment needs.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <a

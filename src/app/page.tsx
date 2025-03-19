@@ -19,7 +19,7 @@ export default function HomePage() {
                 Get instant settlement with near-zero fees.
               </h1>
               <p className="text-xl text-gray-400 max-w-2xl">
-                LipaPay is a decentralized payment platform built on Solana, designed to compete with 
+                CuriousPay is a decentralized payment platform built on Solana, designed to compete with 
                 traditional mobile money solutions in Africa. It enables businesses and customers to 
                 transact securely using both cryptocurrency and fiat currencies.
               </p>

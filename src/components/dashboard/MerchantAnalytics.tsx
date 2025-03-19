@@ -1,32 +1,13 @@
 'use client'
 
-import { useMemo } from 'react'
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  ScatterChart,
-  Scatter,
-  ZAxis
-} from 'recharts'
-import { MapPin, Building, TrendingUp, AlertTriangle } from 'lucide-react'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Transaction } from '@/hooks/useTransactions'
 
-interface Transaction {
-  id: string
-  merchantName: string
-  merchantCategory: string
+interface MerchantData {
+  name: string
+  transactions: number
   amount: number
   date: string
-  location: {
-    city: string
-    country: string
-    coordinates: [number, number]
-  }
-  riskScore: number
 }
 
 interface MerchantAnalyticsProps {
@@ -34,233 +15,115 @@ interface MerchantAnalyticsProps {
 }
 
 export function MerchantAnalytics({ transactions }: MerchantAnalyticsProps) {
-  const merchantMetrics = useMemo(() => {
-    const metrics = transactions.reduce((acc, tx) => {
-      if (!acc[tx.merchantName]) {
-        acc[tx.merchantName] = {
-          name: tx.merchantName,
-          totalSpent: 0,
-          transactionCount: 0,
-          averageAmount: 0,
-          category: tx.merchantCategory,
-          riskScore: 0,
-          locations: new Set<string>()
+  // Aggregate merchant data from transactions
+  const merchantData = transactions
+    .filter(t => t.merchant)
+    .reduce((acc: Record<string, MerchantData>, transaction) => {
+      const merchantName = transaction.merchant || 'Unknown'
+      
+      if (!acc[merchantName]) {
+        acc[merchantName] = {
+          name: merchantName,
+          transactions: 0,
+          amount: 0,
+          date: transaction.date
         }
       }
-
-      const merchant = acc[tx.merchantName]
-      merchant.totalSpent += tx.amount
-      merchant.transactionCount += 1
-      merchant.riskScore = Math.max(merchant.riskScore, tx.riskScore)
-      merchant.locations.add(`${tx.location.city}, ${tx.location.country}`)
-
+      
+      acc[merchantName].transactions += 1
+      acc[merchantName].amount += transaction.amount
+      
+      // Keep track of most recent transaction
+      const existingDate = new Date(acc[merchantName].date)
+      const currentDate = new Date(transaction.date)
+      if (currentDate > existingDate) {
+        acc[merchantName].date = transaction.date
+      }
+      
       return acc
-    }, {} as Record<string, any>)
+    }, {})
 
-    return Object.values(metrics).map(merchant => ({
-      ...merchant,
-      averageAmount: merchant.totalSpent / merchant.transactionCount,
-      locationCount: merchant.locations.size,
-      locations: Array.from(merchant.locations)
-    }))
-  }, [transactions])
-
-  const topMerchants = useMemo(() => {
-    return [...merchantMetrics]
-      .sort((a, b) => b.totalSpent - a.totalSpent)
-      .slice(0, 5)
-  }, [merchantMetrics])
-
-  const riskDistribution = useMemo(() => {
-    return merchantMetrics.map(merchant => ({
-      x: merchant.averageAmount,
-      y: merchant.transactionCount,
-      z: merchant.riskScore,
-      name: merchant.name
-    }))
-  }, [merchantMetrics])
+  const merchantList = Object.values(merchantData)
+    .sort((a, b) => b.amount - a.amount)
 
   return (
-    <div className="space-y-8">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-gray-800 rounded-lg p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-gray-400">Unique Merchants</h3>
-            <Building className="h-5 w-5 text-primary" />
-          </div>
-          <p className="text-2xl font-bold text-white">
-            {merchantMetrics.length}
-          </p>
-        </div>
-
-        <div className="bg-gray-800 rounded-lg p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-gray-400">Average Transaction</h3>
-            <TrendingUp className="h-5 w-5 text-primary" />
-          </div>
-          <p className="text-2xl font-bold text-white">
-            ${(transactions.reduce((sum, tx) => sum + tx.amount, 0) / transactions.length).toFixed(2)}
-          </p>
-        </div>
-
-        <div className="bg-gray-800 rounded-lg p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-gray-400">Locations</h3>
-            <MapPin className="h-5 w-5 text-primary" />
-          </div>
-          <p className="text-2xl font-bold text-white">
-            {new Set(transactions.map(tx => `${tx.location.city}, ${tx.location.country}`)).size}
-          </p>
-        </div>
-
-        <div className="bg-gray-800 rounded-lg p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-gray-400">High Risk Merchants</h3>
-            <AlertTriangle className="h-5 w-5 text-primary" />
-          </div>
-          <p className="text-2xl font-bold text-white">
-            {merchantMetrics.filter(m => m.riskScore > 0.7).length}
-          </p>
-        </div>
+    <div className="space-y-4">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium">Total Merchants</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{merchantList.length}</div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium">Total Volume</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              ${merchantList.reduce((sum, m) => sum + m.amount, 0).toFixed(2)}
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium">Average Transaction</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              ${(merchantList.reduce((sum, m) => sum + m.amount, 0) / 
+                merchantList.reduce((sum, m) => sum + m.transactions, 0)).toFixed(2)}
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-gray-800 rounded-lg p-6">
-          <h3 className="text-lg font-medium text-white mb-6">Top Merchants by Spend</h3>
-          <div className="h-80">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={topMerchants}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-                <XAxis
-                  dataKey="name"
-                  stroke="#9CA3AF"
-                  tick={{ fill: '#9CA3AF' }}
-                  angle={-45}
-                  textAnchor="end"
-                  height={80}
-                />
-                <YAxis stroke="#9CA3AF" tick={{ fill: '#9CA3AF' }} />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: '#1F2937',
-                    border: 'none',
-                    borderRadius: '0.5rem'
-                  }}
-                  labelStyle={{ color: '#F3F4F6' }}
-                />
-                <Bar dataKey="totalSpent" fill="#10B981" radius={[4, 4, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-
-        <div className="bg-gray-800 rounded-lg p-6">
-          <h3 className="text-lg font-medium text-white mb-6">Risk Analysis</h3>
-          <div className="h-80">
-            <ResponsiveContainer width="100%" height="100%">
-              <ScatterChart>
-                <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-                <XAxis
-                  dataKey="x"
-                  name="Average Amount"
-                  stroke="#9CA3AF"
-                  tick={{ fill: '#9CA3AF' }}
-                />
-                <YAxis
-                  dataKey="y"
-                  name="Transaction Count"
-                  stroke="#9CA3AF"
-                  tick={{ fill: '#9CA3AF' }}
-                />
-                <ZAxis
-                  dataKey="z"
-                  range={[50, 400]}
-                  name="Risk Score"
-                />
-                <Tooltip
-                  cursor={{ strokeDasharray: '3 3' }}
-                  contentStyle={{
-                    backgroundColor: '#1F2937',
-                    border: 'none',
-                    borderRadius: '0.5rem'
-                  }}
-                  labelStyle={{ color: '#F3F4F6' }}
-                />
-                <Scatter
-                  data={riskDistribution}
-                  fill="#10B981"
-                />
-              </ScatterChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-      </div>
-
-      <div className="bg-gray-800 rounded-lg p-6">
-        <h3 className="text-lg font-medium text-white mb-6">Merchant Details</h3>
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-700">
-            <thead>
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                  Merchant
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                  Category
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                  Total Spent
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                  Avg. Transaction
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                  Locations
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                  Risk Score
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-700">
-              {merchantMetrics.map((merchant, idx) => (
-                <tr key={merchant.name} className={idx % 2 === 0 ? 'bg-gray-800' : 'bg-gray-750'}>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
-                    {merchant.name}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
-                    {merchant.category}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
-                    ${merchant.totalSpent.toFixed(2)}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
-                    ${merchant.averageAmount.toFixed(2)}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-400">
-                    <div className="max-w-xs truncate">
-                      {merchant.locations.join(', ')}
+      <Card>
+        <CardHeader>
+          <CardTitle>Top Merchants by Volume</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-8">
+            {merchantList.length === 0 ? (
+              <div className="text-center text-sm text-gray-500">No merchant data available</div>
+            ) : (
+              merchantList.slice(0, 5).map((merchant, i) => (
+                <div key={i} className="flex items-center">
+                  <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center text-gray-700 font-semibold">
+                    {merchant.name.substring(0, 2).toUpperCase()}
+                  </div>
+                  <div className="ml-4 flex-1">
+                    <div className="flex justify-between">
+                      <div>
+                        <p className="font-semibold">{merchant.name}</p>
+                        <p className="text-sm text-gray-500">{merchant.transactions} transactions</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-semibold">${merchant.amount.toFixed(2)}</p>
+                        <p className="text-sm text-gray-500">
+                          {new Date(merchant.date).toLocaleDateString()}
+                        </p>
+                      </div>
                     </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm">
-                    <span
-                      className={`px-2 py-1 rounded-full ${
-                        merchant.riskScore > 0.7
-                          ? 'bg-red-500/10 text-red-400'
-                          : merchant.riskScore > 0.4
-                          ? 'bg-yellow-500/10 text-yellow-400'
-                          : 'bg-green-500/10 text-green-400'
-                      }`}
-                    >
-                      {(merchant.riskScore * 100).toFixed(0)}%
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+                    <div className="mt-2 w-full bg-gray-200 rounded-full h-1.5">
+                      <div 
+                        className="bg-primary h-1.5 rounded-full" 
+                        style={{ 
+                          width: `${Math.min(100, (merchant.amount / merchantList[0].amount) * 100)}%` 
+                        }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </CardContent>
+      </Card>
     </div>
   )
 }

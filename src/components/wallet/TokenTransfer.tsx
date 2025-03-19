@@ -1,198 +1,148 @@
 'use client'
 
 import { useState } from 'react'
-import { useWallet } from '@/components/providers/WalletProvider'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { toast } from '@/components/ui/use-toast'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
-import { Connection, PublicKey, Transaction } from '@solana/web3.js'
-import {
-  TOKEN_PROGRAM_ID,
-  createTransferInstruction,
-  getAssociatedTokenAddress,
-  createAssociatedTokenAccountInstruction,
-} from '@solana/spl-token'
+import { useWallet } from '@/components/providers/WalletProvider'
 
 interface Token {
-  mint: string
   symbol: string
+  name: string
   balance: number
-  decimals: number
 }
 
 export function TokenTransfer() {
-  const { connected, publicKey, signTransaction } = useWallet()
-  const [selectedToken, setSelectedToken] = useState<string>('')
-  const [recipient, setRecipient] = useState('')
+  const { connected } = useWallet()
   const [amount, setAmount] = useState('')
-  const [sending, setSending] = useState(false)
-  const [tokens, setTokens] = useState<Token[]>([])
+  const [recipient, setRecipient] = useState('')
+  const [selectedToken, setSelectedToken] = useState('SOL')
+  
+  const mockTokens: Token[] = [
+    { symbol: 'SOL', name: 'Solana', balance: 12.45 },
+    { symbol: 'USDC', name: 'USD Coin', balance: 350.75 },
+    { symbol: 'BTC', name: 'Bitcoin (Wrapped)', balance: 0.025 }
+  ]
 
-  const connection = new Connection(
-    process.env.NEXT_PUBLIC_RPC_ENDPOINT || 'https://api.mainnet-beta.solana.com'
-  )
-
-  const handleTransfer = async (e: React.FormEvent) => {
-    e.preventDefault()
-
-    if (!connected || !publicKey) {
-      toast({
-        title: 'Error',
-        description: 'Please connect your wallet first',
-        variant: 'destructive',
-      })
-      return
-    }
-
-    try {
-      setSending(true)
-
-      // Validate recipient address
-      let recipientPubkey: PublicKey
-      try {
-        recipientPubkey = new PublicKey(recipient)
-      } catch (error) {
-        throw new Error('Invalid recipient address')
-      }
-
-      const token = tokens.find(t => t.mint === selectedToken)
-      if (!token) {
-        throw new Error('Invalid token selected')
-      }
-
-      // Convert amount to token units
-      const tokenAmount = Math.round(parseFloat(amount) * Math.pow(10, token.decimals))
-      if (isNaN(tokenAmount) || tokenAmount <= 0) {
-        throw new Error('Invalid amount')
-      }
-
-      const mintPubkey = new PublicKey(token.mint)
-
-      // Get source token account
-      const sourceTokenAccount = await getAssociatedTokenAddress(
-        mintPubkey,
-        publicKey
-      )
-
-      // Get destination token account
-      const destinationTokenAccount = await getAssociatedTokenAddress(
-        mintPubkey,
-        recipientPubkey
-      )
-
-      // Check if destination token account exists
-      const destinationAccountInfo = await connection.getAccountInfo(destinationTokenAccount)
-
-      // Create transaction
-      const transaction = new Transaction()
-
-      // If destination token account doesn't exist, create it
-      if (!destinationAccountInfo) {
-        transaction.add(
-          createAssociatedTokenAccountInstruction(
-            publicKey,
-            destinationTokenAccount,
-            recipientPubkey,
-            mintPubkey
-          )
-        )
-      }
-
-      // Add transfer instruction
-      transaction.add(
-        createTransferInstruction(
-          sourceTokenAccount,
-          destinationTokenAccount,
-          publicKey,
-          tokenAmount
-        )
-      )
-
-      // Get recent blockhash
-      const { blockhash } = await connection.getLatestBlockhash()
-      transaction.recentBlockhash = blockhash
-      transaction.feePayer = publicKey
-
-      // Sign and send transaction
-      const signedTx = await signTransaction(transaction)
-      const signature = await connection.sendRawTransaction(signedTx.serialize())
-      await connection.confirmTransaction(signature)
-
-      toast({
-        title: 'Transfer Successful',
-        description: `Sent ${amount} ${token.symbol} to ${recipient.slice(0, 4)}...${recipient.slice(-4)}`,
-      })
-
-      // Reset form
-      setRecipient('')
-      setAmount('')
-      setSelectedToken('')
-    } catch (error: any) {
-      toast({
-        title: 'Transfer Failed',
-        description: error.message,
-        variant: 'destructive',
-      })
-    } finally {
-      setSending(false)
+  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Only allow numbers and decimals
+    const value = e.target.value
+    if (/^\d*\.?\d*$/.test(value)) {
+      setAmount(value)
     }
   }
 
-  if (!connected || !publicKey) {
-    return null
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    // Here would be token transfer logic
+    console.log('Transferring', amount, selectedToken, 'to', recipient)
+    // Reset form
+    setAmount('')
+    setRecipient('')
+  }
+
+  if (!connected) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Send Tokens</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-col items-center justify-center py-6">
+            <p className="text-center text-sm text-gray-500 mb-4">
+              Connect your wallet to send tokens
+            </p>
+            <Button variant="outline">Connect Wallet</Button>
+          </div>
+        </CardContent>
+      </Card>
+    )
   }
 
   return (
-    <form onSubmit={handleTransfer} className="space-y-4">
-      <div>
-        <Select
-          value={selectedToken}
-          onValueChange={setSelectedToken}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Select Token" />
-          </SelectTrigger>
-          <SelectContent>
-            {tokens.map((token) => (
-              <SelectItem key={token.mint} value={token.mint}>
-                {token.symbol} ({token.balance})
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-      <div>
-        <Input
-          type="text"
-          placeholder="Recipient Address"
-          value={recipient}
-          onChange={(e) => setRecipient(e.target.value)}
-          disabled={sending}
-        />
-      </div>
-      <div>
-        <Input
-          type="number"
-          step="any"
-          placeholder="Amount"
-          value={amount}
-          onChange={(e) => setAmount(e.target.value)}
-          disabled={sending}
-        />
-      </div>
-      <Button
-        type="submit"
-        disabled={sending || !recipient || !amount || !selectedToken}
-      >
-        {sending ? 'Sending...' : 'Send Token'}
-      </Button>
-    </form>
+    <Card>
+      <CardHeader>
+        <CardTitle>Send Tokens</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <label htmlFor="token" className="text-sm font-medium">
+              Token
+            </label>
+            <div className="relative">
+              <select
+                id="token"
+                value={selectedToken}
+                onChange={(e) => setSelectedToken(e.target.value)}
+                className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm appearance-none"
+              >
+                {mockTokens.map(token => (
+                  <option key={token.symbol} value={token.symbol}>
+                    {token.symbol} - {token.name} ({token.balance})
+                  </option>
+                ))}
+              </select>
+              <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+                <svg className="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                  <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                </svg>
+              </div>
+            </div>
+          </div>
+          
+          <div className="space-y-2">
+            <label htmlFor="recipient" className="text-sm font-medium">
+              Recipient Address
+            </label>
+            <input
+              id="recipient"
+              type="text"
+              value={recipient}
+              onChange={(e) => setRecipient(e.target.value)}
+              placeholder="Enter wallet address"
+              className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm"
+              required
+            />
+          </div>
+          
+          <div className="space-y-2">
+            <label htmlFor="amount" className="text-sm font-medium">
+              Amount
+            </label>
+            <div className="relative">
+              <input
+                id="amount"
+                type="text"
+                value={amount}
+                onChange={handleAmountChange}
+                placeholder="0.00"
+                className="w-full rounded-md border border-slate-300 bg-white pl-3 pr-12 py-2 text-sm"
+                required
+              />
+              <div className="absolute inset-y-0 right-0 flex items-center pr-3">
+                <span className="text-gray-500 text-sm">{selectedToken}</span>
+              </div>
+            </div>
+            <div className="flex justify-between text-xs text-gray-500">
+              <span>Fee: ~0.000005 SOL</span>
+              <button 
+                type="button" 
+                className="text-primary"
+                onClick={() => {
+                  const token = mockTokens.find(t => t.symbol === selectedToken)
+                  if (token) setAmount(token.balance.toString())
+                }}
+              >
+                MAX
+              </button>
+            </div>
+          </div>
+          
+          <Button type="submit" className="w-full">
+            Send {selectedToken}
+          </Button>
+        </form>
+      </CardContent>
+    </Card>
   )
 }

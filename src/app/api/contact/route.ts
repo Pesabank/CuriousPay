@@ -32,7 +32,7 @@ export async function POST(req: Request) {
     const result = await resend.emails.send({
       from: 'CuriousPay <onboarding@resend.dev>',
       to: 'curiouspayments@gmail.com',
-      reply_to: email,
+      replyTo: email,
       subject: `Contact Form: ${subject}`,
       html: `
         <h1>New Contact Form Submission</h1>

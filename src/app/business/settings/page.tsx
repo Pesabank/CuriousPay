@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { 
   Bell, 
   Lock, 
@@ -9,150 +9,168 @@ import {
   Mail,
   Shield,
   DollarSign,
-  AlertTriangle
+  AlertTriangle,
+  AlertCircle,
+  Coins
 } from 'lucide-react'
 import { useWallet } from '@/components/providers/WalletProvider'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Slider } from '@/components/ui/slider'
+import { Switch } from '@/components/ui/switch'
+import { Label } from '@/components/ui/label'
 
-export default function SettingsPage() {
-  const { publicKey } = useWallet()
-  const [notifications, setNotifications] = useState({
-    transactions: true,
-    security: true,
-    marketing: false,
-  })
-  const [currency, setCurrency] = useState('USD')
+export default function BusinessSettingsPage() {
+  const { connected, publicKey } = useWallet()
+  const [riskLevel, setRiskLevel] = useState(50)
+  const [autoFees, setAutoFees] = useState(true)
+  const [enhancedSecurity, setEnhancedSecurity] = useState(true)
+  const [notifications, setNotifications] = useState(true)
 
+  // Function to truncate wallet address
+  const formatPublicKey = (key: any): string => {
+    if (!key) return 'No wallet connected'
+    
+    // Convert PublicKey to string if needed
+    const keyString = typeof key === 'string' ? key : key.toString()
+    
+    if (keyString.length <= 16) return keyString
+    return `${keyString.substring(0, 8)}...${keyString.substring(keyString.length - 8)}`
+  }
+  
   return (
-    <div className="space-y-8">
-      <h1 className="text-2xl font-bold text-white">Settings</h1>
-
-      {/* Account Security */}
-      <div className="bg-gray-800 rounded-lg p-6">
-        <div className="flex items-center mb-6">
-          <Shield className="h-6 w-6 text-primary mr-3" />
-          <h2 className="text-xl font-semibold text-white">Account Security</h2>
-        </div>
-
-        <div className="space-y-6">
-          <div>
-            <h3 className="text-white mb-2">Connected Wallet</h3>
-            <div className="bg-gray-700 p-4 rounded-lg">
-              <p className="text-gray-400 text-sm mb-1">Wallet Address</p>
-              <p className="font-mono text-white break-all">
-                {publicKey || 'No wallet connected'}
+    <div className="p-6 space-y-6">
+      <h1 className="text-2xl font-bold">Business Settings</h1>
+      
+      <div className="grid gap-6 md:grid-cols-2">
+        <Card>
+          <CardHeader>
+            <CardTitle>Wallet Connection</CardTitle>
+            <CardDescription>Manage your connected blockchain wallets</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="bg-gray-800 p-4 rounded-lg mb-4">
+              <div className="flex items-center">
+                <div className="mr-4">
+                  <Coins className="h-8 w-8 text-primary" />
+                </div>
+                <div>
+                  <p className="text-gray-400 text-sm mb-1">Wallet Address</p>
+                  <p className="font-mono text-white break-all">
+                    {formatPublicKey(publicKey)}
+                  </p>
+                </div>
+              </div>
+            </div>
+            
+            <div className="flex items-center justify-between">
+              <Label htmlFor="connected-status">Connected Status</Label>
+              <div className={`px-2 py-1 rounded-full text-xs ${connected ? 'bg-green-500/20 text-green-500' : 'bg-red-500/20 text-red-500'}`}>
+                {connected ? 'Connected' : 'Disconnected'}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader>
+            <CardTitle>Risk Management</CardTitle>
+            <CardDescription>Configure your risk management preferences</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="risk-level">Transaction Risk Level</Label>
+                <span className="text-sm">{riskLevel}%</span>
+              </div>
+              <Slider 
+                id="risk-level"
+                value={[riskLevel]} 
+                onValueChange={(values) => setRiskLevel(values[0])} 
+                min={0} 
+                max={100} 
+                step={5} 
+              />
+              <div className="flex justify-between text-xs text-gray-500">
+                <span>Low Risk</span>
+                <span>High Risk</span>
+              </div>
+            </div>
+            
+            <div className="flex items-center justify-between">
+              <div className="space-y-1">
+                <Label htmlFor="auto-fees">Automatic Fee Optimization</Label>
+                <p className="text-sm text-gray-500">Optimize transaction fees based on network conditions</p>
+              </div>
+              <Switch 
+                id="auto-fees" 
+                checked={autoFees} 
+                onCheckedChange={setAutoFees} 
+              />
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader>
+            <CardTitle>Security Settings</CardTitle>
+            <CardDescription>Configure security options for your business</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="space-y-1">
+                <Label htmlFor="enhanced-security">Enhanced Security</Label>
+                <p className="text-sm text-gray-500">Extra verification for high-value transactions</p>
+              </div>
+              <Switch 
+                id="enhanced-security" 
+                checked={enhancedSecurity} 
+                onCheckedChange={setEnhancedSecurity} 
+              />
+            </div>
+            
+            <div className="bg-yellow-500/10 text-yellow-500 p-4 rounded-lg flex items-start">
+              <AlertCircle className="h-5 w-5 mr-2 mt-0.5 flex-shrink-0" />
+              <p className="text-sm">
+                Enhanced security requires additional verification steps for transactions over $1,000.
               </p>
             </div>
-          </div>
-
-          <div>
-            <h3 className="text-white mb-2">Two-Factor Authentication</h3>
-            <button className="px-4 py-2 bg-primary text-black rounded-md hover:bg-primary/90">
-              Enable 2FA
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Notifications */}
-      <div className="bg-gray-800 rounded-lg p-6">
-        <div className="flex items-center mb-6">
-          <Bell className="h-6 w-6 text-primary mr-3" />
-          <h2 className="text-xl font-semibold text-white">Notifications</h2>
-        </div>
-
-        <div className="space-y-4">
-          <div className="flex justify-between items-center">
-            <div>
-              <p className="text-white">Transaction Notifications</p>
-              <p className="text-sm text-gray-400">Receive alerts for all transactions</p>
-            </div>
-            <div className="relative inline-block w-12 align-middle select-none">
-              <input
-                type="checkbox"
-                checked={notifications.transactions}
-                onChange={(e) => setNotifications({...notifications, transactions: e.target.checked})}
-                className="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader>
+            <CardTitle>Notification Preferences</CardTitle>
+            <CardDescription>Configure how you receive notifications</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="space-y-1">
+                <Label htmlFor="notifications">Business Transaction Alerts</Label>
+                <p className="text-sm text-gray-500">Receive alerts for all business transactions</p>
+              </div>
+              <Switch 
+                id="notifications" 
+                checked={notifications} 
+                onCheckedChange={setNotifications} 
               />
-              <label className="toggle-label block overflow-hidden h-6 rounded-full bg-gray-700 cursor-pointer" />
             </div>
-          </div>
-
-          <div className="flex justify-between items-center">
-            <div>
-              <p className="text-white">Security Alerts</p>
-              <p className="text-sm text-gray-400">Get notified about security events</p>
-            </div>
-            <div className="relative inline-block w-12 align-middle select-none">
-              <input
-                type="checkbox"
-                checked={notifications.security}
-                onChange={(e) => setNotifications({...notifications, security: e.target.checked})}
-                className="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"
+            
+            <div className="flex items-center justify-between">
+              <div className="space-y-1">
+                <Label htmlFor="security-alerts">Security Alerts</Label>
+                <p className="text-sm text-gray-500">Critical security notifications</p>
+              </div>
+              <Switch 
+                id="security-alerts" 
+                checked={true}
+                disabled
               />
-              <label className="toggle-label block overflow-hidden h-6 rounded-full bg-gray-700 cursor-pointer" />
             </div>
-          </div>
-
-          <div className="flex justify-between items-center">
-            <div>
-              <p className="text-white">Marketing Updates</p>
-              <p className="text-sm text-gray-400">Receive news and special offers</p>
-            </div>
-            <div className="relative inline-block w-12 align-middle select-none">
-              <input
-                type="checkbox"
-                checked={notifications.marketing}
-                onChange={(e) => setNotifications({...notifications, marketing: e.target.checked})}
-                className="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"
-              />
-              <label className="toggle-label block overflow-hidden h-6 rounded-full bg-gray-700 cursor-pointer" />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Preferences */}
-      <div className="bg-gray-800 rounded-lg p-6">
-        <div className="flex items-center mb-6">
-          <Globe className="h-6 w-6 text-primary mr-3" />
-          <h2 className="text-xl font-semibold text-white">Preferences</h2>
-        </div>
-
-        <div className="space-y-4">
-          <div>
-            <label className="block text-white mb-2">Display Currency</label>
-            <select
-              value={currency}
-              onChange={(e) => setCurrency(e.target.value)}
-              className="w-full bg-gray-700 border-gray-600 rounded-md text-white px-4 py-2"
-            >
-              <option value="USD">USD - US Dollar</option>
-              <option value="EUR">EUR - Euro</option>
-              <option value="GBP">GBP - British Pound</option>
-              <option value="KES">KES - Kenyan Shilling</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
-      {/* Danger Zone */}
-      <div className="bg-gray-800 rounded-lg p-6 border border-red-500/20">
-        <div className="flex items-center mb-6">
-          <AlertTriangle className="h-6 w-6 text-red-500 mr-3" />
-          <h2 className="text-xl font-semibold text-white">Danger Zone</h2>
-        </div>
-
-        <div className="space-y-4">
-          <div>
-            <h3 className="text-white mb-2">Delete Account</h3>
-            <p className="text-gray-400 mb-4">
-              Once you delete your account, there is no going back. Please be certain.
+            <p className="text-xs text-gray-500">
+              Security alerts cannot be disabled as they are required for your account security.
             </p>
-            <button className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600">
-              Delete Account
-            </button>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   )

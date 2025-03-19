@@ -1,11 +1,10 @@
 import { generateOTP, verifyOTP } from '@/lib/otp'
+import { NextAuthOptions } from 'next-auth'
 
 export interface BiometricCredential {
-  id: string
-  type: 'fingerprint' | 'face' | 'device'
-  name: string
-  createdAt: string
-  lastUsed: string
+  credentialId: string
+  userId: string
+  createdAt: Date
 }
 
 class AuthenticationService {
@@ -38,78 +37,22 @@ class AuthenticationService {
     }
   }
 
-  async registerBiometric(userId: string): Promise<BiometricCredential | null> {
-    if (!await this.isBiometricAvailable()) {
-      throw new Error('Biometric authentication not available')
-    }
-
+  async verifyBiometric(): Promise<boolean> {
     try {
+      if (!await this.isBiometricAvailable()) {
+        return false
+      }
+
       // Create challenge
       const challenge = new Uint8Array(32)
       window.crypto.getRandomValues(challenge)
 
-      // Create public key credential options
-      const createCredentialOptions = {
-        publicKey: {
-          challenge,
-          rp: {
-            name: 'CuriousPay',
-            id: window.location.hostname
-          },
-          user: {
-            id: Uint8Array.from(userId, c => c.charCodeAt(0)),
-            name: userId,
-            displayName: userId
-          },
-          pubKeyCredParams: [{
-            type: 'public-key',
-            alg: -7 // ES256
-          }],
-          authenticatorSelection: {
-            authenticatorAttachment: 'platform',
-            userVerification: 'required'
-          },
-          timeout: 60000
-        }
-      }
-
-      // Create credential
-      const credential = await navigator.credentials.create(createCredentialOptions)
-
-      if (credential) {
-        const newCredential: BiometricCredential = {
-          id: Math.random().toString(36).substr(2, 9),
-          type: 'device',
-          name: 'Device Biometric',
-          createdAt: new Date().toISOString(),
-          lastUsed: new Date().toISOString()
-        }
-
-        this.registeredCredentials.push(newCredential)
-        return newCredential
-      }
-
-      return null
-    } catch (error) {
-      console.error('Error registering biometric:', error)
-      throw new Error('Failed to register biometric')
-    }
-  }
-
-  async verifyBiometric(): Promise<boolean> {
-    if (!await this.isBiometricAvailable()) {
-      throw new Error('Biometric authentication not available')
-    }
-
-    try {
-      const challenge = new Uint8Array(32)
-      window.crypto.getRandomValues(challenge)
-
+      // Create assertion options
       const assertionOptions = {
         publicKey: {
           challenge,
           timeout: 60000,
-          userVerification: 'required'
+          userVerification: 'required' as UserVerificationRequirement
         }
       }
 
@@ -121,18 +64,19 @@ class AuthenticationService {
     }
   }
 
-  async setup2FA(phoneNumber: string): Promise<{ secret: string; qrCode: string }> {
+  async setupTwoFactor(phoneNumber: string): Promise<string> {
     try {
       // Generate OTP secret
-      const secret = generateOTP()
-      
+      const secret = generateOTP(phoneNumber, 0)
+
       // Generate QR code URL (in a real app, this would be a proper QR code)
       const qrCode = `otpauth://totp/CuriousPay:${phoneNumber}?secret=${secret}&issuer=CuriousPay`
-
-      return { secret, qrCode }
+      
+      // In a real app, the secret would be stored securely for the user
+      return qrCode
     } catch (error) {
       console.error('Error setting up 2FA:', error)
-      throw new Error('Failed to setup 2FA')
+      throw new Error('Failed to set up two-factor authentication')
     }
   }
 
@@ -151,7 +95,86 @@ class AuthenticationService {
 
   async removeCredential(credentialId: string): Promise<void> {
     this.registeredCredentials = this.registeredCredentials.filter(
-      cred => cred.id !== credentialId
+      cred => cred.credentialId !== credentialId
     )
+  }
+}
+
+// Create authOptions if it doesn't exist
+export const authOptions: NextAuthOptions = {
+  providers: [],
+  pages: {
+    signIn: '/auth/signin',
+    error: '/auth/error',
+  },
+  callbacks: {
+    async session({ session, token }) {
+      // Add custom logic for session callback
+      return session
+    },
+    async jwt({ token, user }) {
+      // Add custom logic for JWT callback
+      return token
+    }
+  }
+}
+
+// Standalone WebAuthn credential creation function
+export async function createWebAuthnCredential(userId: string, email: string): Promise<BiometricCredential | null> {
+  try {
+    if (typeof window === 'undefined') {
+      return null // Handle server-side rendering
+    }
+    
+    // Check if WebAuthn is supported
+    if (!window.PublicKeyCredential) {
+      console.error('WebAuthn is not supported in this browser')
+      return null
+    }
+
+    // Generate random challenge
+    const challenge = new Uint8Array(32)
+    crypto.getRandomValues(challenge)
+
+    // Create credential options
+    const createCredentialOptions = {
+      publicKey: {
+        challenge: challenge,
+        rp: {
+          name: 'LipaPay',
+          id: window.location.hostname
+        },
+        user: {
+          id: Uint8Array.from(userId.split('').map(c => c.charCodeAt(0))),
+          name: email,
+          displayName: email
+        },
+        pubKeyCredParams: [
+          { type: 'public-key' as const, alg: -7 } // ES256
+        ],
+        authenticatorSelection: {
+          userVerification: 'preferred' as UserVerificationRequirement,
+          authenticatorAttachment: 'platform' as AuthenticatorAttachment
+        },
+        timeout: 60000
+      }
+    }
+
+    // Create credential
+    const credential = await navigator.credentials.create(createCredentialOptions)
+
+    if (credential) {
+      // Return new credential data
+      return {
+        credentialId: credential.id,
+        userId: userId,
+        createdAt: new Date()
+      }
+    }
+    
+    return null
+  } catch (error) {
+    console.error('Error creating WebAuthn credential:', error)
+    return null
   }
 }

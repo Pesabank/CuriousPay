@@ -2,63 +2,56 @@
 
 import { Navbar } from '@/components/Navbar'
 import { useState } from 'react'
+import { Mail, MapPin, Phone } from 'lucide-react'
+import React from 'react'
 
 export default function ContactPage() {
-  const [formState, setFormState] = useState({
+  const [form, setForm] = useState({
     name: '',
     email: '',
     subject: '',
     message: ''
   })
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [submitStatus, setSubmitStatus] = useState<{
-    success?: boolean;
-    message?: string;
-  }>({})
+  const [loading, setLoading] = useState(false)
+  const [success, setSuccess] = useState(false)
+  const [error, setError] = useState('')
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setForm({
+      ...form,
+      [e.target.name]: e.target.value
+    })
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setIsSubmitting(true)
-    setSubmitStatus({})
-    
+    setLoading(true)
+    setError('')
+
     try {
       const response = await fetch('/api/contact', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json'
         },
-        body: JSON.stringify(formState),
+        body: JSON.stringify(form)
       })
-      
-      const data = await response.json()
-      
-      if (response.ok) {
-        setSubmitStatus({
-          success: true,
-          message: data.message || 'Your message has been sent successfully!'
-        })
-        // Reset form after successful submission
-        setFormState({
-          name: '',
-          email: '',
-          subject: '',
-          message: ''
-        })
-      } else {
-        console.error('Form submission error:', data);
-        setSubmitStatus({
-          success: false,
-          message: data.message || 'Failed to send message. Please try again.'
-        })
+
+      if (!response.ok) {
+        throw new Error('Failed to send message')
       }
-    } catch (error) {
-      console.error('Form submission exception:', error);
-      setSubmitStatus({
-        success: false,
-        message: 'An error occurred. Please try again later.'
+
+      setSuccess(true)
+      setForm({
+        name: '',
+        email: '',
+        subject: '',
+        message: ''
       })
+    } catch (err) {
+      setError('Failed to send message. Please try again later.')
     } finally {
-      setIsSubmitting(false)
+      setLoading(false)
     }
   }
 
@@ -77,11 +70,16 @@ export default function ContactPage() {
                 {contactMethods.map((method) => (
                   <div key={method.title} className="flex items-start space-x-4">
                     <div className="mt-1">
-                      <method.icon className="w-6 h-6 text-[#00FF84]" />
+                      {method.title === 'Email us' && <Mail className="w-6 h-6 text-[#00FF84]" />}
+                      {method.title === 'Call us' && <Phone className="w-6 h-6 text-[#00FF84]" />}
+                      {method.title === 'Visit us' && <MapPin className="w-6 h-6 text-[#00FF84]" />}
                     </div>
                     <div>
                       <h3 className="text-xl font-bold">{method.title}</h3>
-                      <p className="text-gray-400 text-lg">{method.content}</p>
+                      <p className="text-gray-400 text-lg">{method.description}</p>
+                      {method.email && <p className="text-[#00FF84]">{method.email}</p>}
+                      {method.phone && <p className="text-[#00FF84]">{method.phone}</p>}
+                      {method.address && <p className="text-[#00FF84]">{method.address}</p>}
                     </div>
                   </div>
                 ))}
@@ -100,15 +98,41 @@ export default function ContactPage() {
             {/* Contact Form */}
             <div>
               <form onSubmit={handleSubmit} className="space-y-6 bg-white/5 backdrop-blur-sm p-8 rounded-lg border border-white/10">
-                {submitStatus.success && (
+                {success && (
                   <div className="p-4 bg-green-500/20 border border-green-500/50 rounded-md text-white mb-4">
-                    {submitStatus.message}
+                    <div className="flex">
+                      <div className="flex-shrink-0">
+                        <svg className="h-5 w-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                          <path
+                            fillRule="evenodd"
+                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                      </div>
+                      <div className="ml-3">
+                        <p className="text-sm font-medium text-green-400">Message sent successfully!</p>
+                      </div>
+                    </div>
                   </div>
                 )}
                 
-                {submitStatus.success === false && (
+                {error && (
                   <div className="p-4 bg-red-500/20 border border-red-500/50 rounded-md text-white mb-4">
-                    {submitStatus.message}
+                    <div className="flex">
+                      <div className="flex-shrink-0">
+                        <svg className="h-5 w-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+                          <path
+                            fillRule="evenodd"
+                            d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                      </div>
+                      <div className="ml-3">
+                        <p className="text-sm font-medium text-red-400">{error}</p>
+                      </div>
+                    </div>
                   </div>
                 )}
                 
@@ -119,11 +143,12 @@ export default function ContactPage() {
                   <input
                     type="text"
                     id="name"
-                    value={formState.name}
-                    onChange={(e) => setFormState({ ...formState, name: e.target.value })}
+                    name="name"
+                    value={form.name}
+                    onChange={handleChange}
                     className="w-full px-4 py-3 bg-black/50 border border-white/20 rounded-md focus:outline-none focus:ring-2 focus:ring-[#00FF84] text-white"
                     required
-                    disabled={isSubmitting}
+                    disabled={loading}
                   />
                 </div>
 
@@ -134,11 +159,12 @@ export default function ContactPage() {
                   <input
                     type="email"
                     id="email"
-                    value={formState.email}
-                    onChange={(e) => setFormState({ ...formState, email: e.target.value })}
+                    name="email"
+                    value={form.email}
+                    onChange={handleChange}
                     className="w-full px-4 py-3 bg-black/50 border border-white/20 rounded-md focus:outline-none focus:ring-2 focus:ring-[#00FF84] text-white"
                     required
-                    disabled={isSubmitting}
+                    disabled={loading}
                   />
                 </div>
 
@@ -149,11 +175,12 @@ export default function ContactPage() {
                   <input
                     type="text"
                     id="subject"
-                    value={formState.subject}
-                    onChange={(e) => setFormState({ ...formState, subject: e.target.value })}
+                    name="subject"
+                    value={form.subject}
+                    onChange={handleChange}
                     className="w-full px-4 py-3 bg-black/50 border border-white/20 rounded-md focus:outline-none focus:ring-2 focus:ring-[#00FF84] text-white"
                     required
-                    disabled={isSubmitting}
+                    disabled={loading}
                   />
                 </div>
 
@@ -163,21 +190,22 @@ export default function ContactPage() {
                   </label>
                   <textarea
                     id="message"
-                    value={formState.message}
-                    onChange={(e) => setFormState({ ...formState, message: e.target.value })}
+                    name="message"
+                    value={form.message}
+                    onChange={handleChange}
                     rows={6}
                     className="w-full px-4 py-3 bg-black/50 border border-white/20 rounded-md focus:outline-none focus:ring-2 focus:ring-[#00FF84] text-white"
                     required
-                    disabled={isSubmitting}
+                    disabled={loading}
                   />
                 </div>
 
                 <button
                   type="submit"
                   className="w-full px-8 py-3 bg-[#00FF84] text-black rounded-md font-medium hover:bg-[#00FF84]/90 transition-colors disabled:opacity-70"
-                  disabled={isSubmitting}
+                  disabled={loading}
                 >
-                  {isSubmitting ? 'Sending...' : 'Send Message'}
+                  {loading ? 'Sending...' : 'Send Message'}
                 </button>
               </form>
             </div>
@@ -190,31 +218,18 @@ export default function ContactPage() {
 
 const contactMethods = [
   {
-    title: 'Email',
-    content: 'curiouspayments@gmail.com',
-    icon: () => (
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
-      </svg>
-    )
+    title: 'Email us',
+    description: 'Our friendly team is here to help.',
+    email: 'curiouspay@gmail.com',
   },
   {
-    title: 'Phone',
-    content: '+254 713 259 494',
-    icon: () => (
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" />
-      </svg>
-    )
+    title: 'Call us',
+    description: 'Mon-Fri from 8am to 5pm.',
+    phone: '+1 (555) 000-0000',
   },
   {
-    title: 'Address',
-    content: 'Nairobi, Kenya',
-    icon: () => (
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
-        <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
-      </svg>
-    )
-  }
+    title: 'Visit us',
+    description: 'Come say hello at our office.',
+    address: '100 Smith Street, Nairobi',
+  },
 ]

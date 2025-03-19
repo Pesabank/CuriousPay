@@ -5,7 +5,7 @@ const SECRET_KEY = process.env.OTP_SECRET_KEY || 'otp_secret_key'
 /**
  * Generate a secret key for 2FA
  */
-export function generateSecret(): string {
+export function generateSecretKey(): string {
   const buffer = randomBytes(20)
   return buffer.toString('hex')
 }
@@ -16,7 +16,7 @@ export function generateSecret(): string {
 export function generateTOTP(secret: string, window = 0): string {
   // Get current time in seconds
   const timeStep = 30 // 30 seconds
-  const t = Math.floor(Date.now() / 1000 / timeStep) + window
+  let t = Math.floor(Date.now() / 1000 / timeStep) + window
   
   // Convert to buffer
   const timeBuffer = Buffer.alloc(8)
@@ -88,7 +88,7 @@ export function generateRecoveryCodes(count = 10): string[] {
 /**
  * Generate a random secret for a user
  */
-export function generateSecret(userId: string): string {
+export function generateUserSecret(userId: string): string {
   const hmac = createHmac('sha256', SECRET_KEY)
   hmac.update(userId + Date.now().toString())
   return hmac.digest('hex').substring(0, 16)
@@ -101,4 +101,9 @@ export function generateOTPAuthURL(email: string, secret: string, issuer = 'Curi
   const encodedIssuer = encodeURIComponent(issuer)
   const encodedEmail = encodeURIComponent(email)
   return `otpauth://totp/${encodedIssuer}:${encodedEmail}?secret=${secret}&issuer=${encodedIssuer}`
-} 
+}
+
+// Backward compatibility aliases
+export const generateOTP = generateTOTP
+export const verifyOTP = verifyTOTP
+export const generateSecret = generateSecretKey 

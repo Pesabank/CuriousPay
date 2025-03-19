@@ -2,39 +2,42 @@
 
 import { useState } from 'react'
 import { createQR } from '@solana/pay'
+import QRCode from 'qrcode'
 
 export function QRCodeGenerator() {
   const [amount, setAmount] = useState('')
   const [qrCode, setQrCode] = useState<string | null>(null)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
 
   const generateQR = async () => {
     try {
-      // Replace with your actual business wallet address
-      const recipient = 'YOUR_WALLET_ADDRESS'
-      const label = 'CuriousPay Business'
-      const message = 'Payment for goods/services'
+      setLoading(true)
+      setError('')
       
-      // Create the payment request URL
-      const url = new URL('https://Curiouspay.app/pay')
-      url.searchParams.append('recipient', recipient)
-      url.searchParams.append('label', label)
-      url.searchParams.append('message', message)
-      
-      if (amount) {
-        url.searchParams.append('amount', amount)
-      }
-
-      // Generate QR code
-      const qr = createQR(url)
-      const qrCodeSvg = await qr.getRawData('svg')
+      // Generate SVG QR code
+      const qrCodeSvg = await QRCode.toString(amount || 'YOUR_WALLET_ADDRESS', {
+        type: 'svg',
+        margin: 1,
+        color: {
+          dark: '#FFFFFF',
+          light: '#00000000'
+        }
+      })
       
       // Convert SVG to data URL
-      const blob = new Blob([qrCodeSvg], { type: 'image/svg+xml' })
-      const dataUrl = URL.createObjectURL(blob)
-      
-      setQrCode(dataUrl)
-    } catch (error) {
-      console.error('Error generating QR code:', error)
+      if (qrCodeSvg) {
+        const blob = new Blob([qrCodeSvg], { type: 'image/svg+xml' })
+        const dataUrl = URL.createObjectURL(blob)
+        setQrCode(dataUrl)
+      } else {
+        setError('Failed to generate QR code')
+      }
+    } catch (err) {
+      console.error('QR code generation error:', err)
+      setError('Failed to generate QR code')
+    } finally {
+      setLoading(false)
     }
   }
 

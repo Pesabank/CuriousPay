@@ -784,6 +784,9 @@ video {
 .mr-1 {
   margin-right: 0.25rem;
 }
+.ml-auto {
+  margin-left: auto;
+}
 .block {
   display: block;
 }
@@ -1429,6 +1432,9 @@ video {
 .to-purple-600 {
   --tw-gradient-to: #9333ea var(--tw-gradient-to-position);
 }
+.fill-current {
+  fill: currentColor;
+}
 .p-1 {
   padding: 0.25rem;
 }
@@ -1649,6 +1655,9 @@ video {
 .tracking-wider {
   letter-spacing: 0.05em;
 }
+.tracking-widest {
+  letter-spacing: 0.1em;
+}
 .text-\[\#00FF84\] {
   --tw-text-opacity: 1;
   color: rgb(0 255 132 / var(--tw-text-opacity, 1));
@@ -1783,6 +1792,9 @@ video {
 }
 .opacity-70 {
   opacity: 0.7;
+}
+.opacity-60 {
+  opacity: 0.6;
 }
 .shadow-lg {
   --tw-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);

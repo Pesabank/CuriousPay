@@ -39,7 +39,7 @@ export function MerchantAnalytics({ transactions }: MerchantAnalyticsProps) {
       if (currentDate > existingDate) {
         acc[merchantName].date = transaction.date
       }
-      
+
       return acc
     }, {})
 
@@ -65,7 +65,7 @@ export function MerchantAnalytics({ transactions }: MerchantAnalyticsProps) {
           <CardContent>
             <div className="text-2xl font-bold">
               ${merchantList.reduce((sum, m) => sum + m.amount, 0).toFixed(2)}
-            </div>
+          </div>
           </CardContent>
         </Card>
         
@@ -77,10 +77,10 @@ export function MerchantAnalytics({ transactions }: MerchantAnalyticsProps) {
             <div className="text-2xl font-bold">
               ${(merchantList.reduce((sum, m) => sum + m.amount, 0) / 
                 merchantList.reduce((sum, m) => sum + m.transactions, 0)).toFixed(2)}
-            </div>
+          </div>
           </CardContent>
         </Card>
-      </div>
+        </div>
 
       <Card>
         <CardHeader>
@@ -95,20 +95,20 @@ export function MerchantAnalytics({ transactions }: MerchantAnalyticsProps) {
                 <div key={i} className="flex items-center">
                   <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center text-gray-700 font-semibold">
                     {merchant.name.substring(0, 2).toUpperCase()}
-                  </div>
+          </div>
                   <div className="ml-4 flex-1">
                     <div className="flex justify-between">
                       <div>
                         <p className="font-semibold">{merchant.name}</p>
                         <p className="text-sm text-gray-500">{merchant.transactions} transactions</p>
-                      </div>
+        </div>
                       <div className="text-right">
                         <p className="font-semibold">${merchant.amount.toFixed(2)}</p>
                         <p className="text-sm text-gray-500">
                           {new Date(merchant.date).toLocaleDateString()}
-                        </p>
-                      </div>
-                    </div>
+          </p>
+        </div>
+      </div>
                     <div className="mt-2 w-full bg-gray-200 rounded-full h-1.5">
                       <div 
                         className="bg-primary h-1.5 rounded-full" 
@@ -117,8 +117,8 @@ export function MerchantAnalytics({ transactions }: MerchantAnalyticsProps) {
                         }}
                       />
                     </div>
-                  </div>
-                </div>
+        </div>
+      </div>
               ))
             )}
           </div>

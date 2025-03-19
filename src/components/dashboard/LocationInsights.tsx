@@ -37,8 +37,8 @@ export function LocationInsights({ transactions }: LocationInsightsProps) {
     
     acc[locationName].transactions += 1
     acc[locationName].amount += transaction.amount
-    
-    return acc
+
+      return acc
   }, {})
 
   const locationData = Object.values(locationMap)
@@ -100,7 +100,7 @@ export function LocationInsights({ transactions }: LocationInsightsProps) {
           <CardContent>
             <div className="text-2xl font-bold">
               ${(totalAmount / Math.max(1, totalLocations)).toFixed(2)}
-            </div>
+          </div>
           </CardContent>
         </Card>
         
@@ -113,10 +113,10 @@ export function LocationInsights({ transactions }: LocationInsightsProps) {
           <CardContent>
             <div className="text-2xl font-bold">
               {(totalTransactions / Math.max(1, totalLocations)).toFixed(1)}
-            </div>
+          </div>
           </CardContent>
         </Card>
-      </div>
+        </div>
 
       <Card className="overflow-hidden">
         <CardHeader>
@@ -134,21 +134,21 @@ export function LocationInsights({ transactions }: LocationInsightsProps) {
                   <div className="flex items-center mb-2">
                     <div className="mr-4">
                       <MapPin className="h-5 w-5 text-primary" />
-                    </div>
+          </div>
                     <div className="flex-1">
                       <div className="flex justify-between">
                         <h3 className="font-medium">{location.name}</h3>
                         <div className="flex items-center">
                           <span className="font-medium">${location.amount.toFixed(2)}</span>
                           <ArrowUpRight className="ml-1 h-4 w-4 text-green-500" />
-                        </div>
-                      </div>
+        </div>
+      </div>
                       <div className="flex justify-between text-sm text-muted-foreground">
                         <span>{location.transactions} transactions</span>
                         <span>{((location.amount / totalAmount) * 100).toFixed(1)}%</span>
                       </div>
-                    </div>
-                  </div>
+          </div>
+        </div>
                   <div className="w-full bg-secondary rounded-full h-2">
                     <div 
                       className="bg-primary h-2 rounded-full" 
@@ -156,10 +156,10 @@ export function LocationInsights({ transactions }: LocationInsightsProps) {
                         width: `${Math.min(100, (location.amount / locationData[0].amount) * 100)}%` 
                       }}
                     />
-                  </div>
-                </div>
+        </div>
+      </div>
               ))}
-            </div>
+        </div>
           )}
         </CardContent>
       </Card>

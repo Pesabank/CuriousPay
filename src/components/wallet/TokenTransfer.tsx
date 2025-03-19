@@ -35,9 +35,9 @@ export function TokenTransfer() {
     e.preventDefault()
     // Here would be token transfer logic
     console.log('Transferring', amount, selectedToken, 'to', recipient)
-    // Reset form
+      // Reset form
     setAmount('')
-    setRecipient('')
+      setRecipient('')
   }
 
   if (!connected) {
@@ -72,7 +72,7 @@ export function TokenTransfer() {
             <div className="relative">
               <select
                 id="token"
-                value={selectedToken}
+          value={selectedToken}
                 onChange={(e) => setSelectedToken(e.target.value)}
                 className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm appearance-none"
               >
@@ -88,7 +88,7 @@ export function TokenTransfer() {
                 </svg>
               </div>
             </div>
-          </div>
+      </div>
           
           <div className="space-y-2">
             <label htmlFor="recipient" className="text-sm font-medium">
@@ -96,14 +96,14 @@ export function TokenTransfer() {
             </label>
             <input
               id="recipient"
-              type="text"
-              value={recipient}
-              onChange={(e) => setRecipient(e.target.value)}
+          type="text"
+          value={recipient}
+          onChange={(e) => setRecipient(e.target.value)}
               placeholder="Enter wallet address"
               className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm"
               required
-            />
-          </div>
+        />
+      </div>
           
           <div className="space-y-2">
             <label htmlFor="amount" className="text-sm font-medium">
@@ -113,7 +113,7 @@ export function TokenTransfer() {
               <input
                 id="amount"
                 type="text"
-                value={amount}
+          value={amount}
                 onChange={handleAmountChange}
                 placeholder="0.00"
                 className="w-full rounded-md border border-slate-300 bg-white pl-3 pr-12 py-2 text-sm"
@@ -122,7 +122,7 @@ export function TokenTransfer() {
               <div className="absolute inset-y-0 right-0 flex items-center pr-3">
                 <span className="text-gray-500 text-sm">{selectedToken}</span>
               </div>
-            </div>
+      </div>
             <div className="flex justify-between text-xs text-gray-500">
               <span>Fee: ~0.000005 SOL</span>
               <button 
@@ -140,8 +140,8 @@ export function TokenTransfer() {
           
           <Button type="submit" className="w-full">
             Send {selectedToken}
-          </Button>
-        </form>
+      </Button>
+    </form>
       </CardContent>
     </Card>
   )
